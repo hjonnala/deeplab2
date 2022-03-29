@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2022 The Deeplab2 Authors.
+# Copyright 2021 The Deeplab2 Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,41 @@ from deeplab2.model.layers import convolutions
 
 # The default input image channels.
 _INPUT_CHANNELS = 3
+
+MNV3Small_EDGETPU = {
+    'spec_name': 'MobileNetV3SmallEdgeTPU',
+    'block_spec_schema': ['block_fn', 'kernel_size', 'strides', 'filters',
+                          'activation', 'se_ratio', 'expand_ratio',
+                          'is_endpoint'],
+    'block_specs': [
+        ('conv_bn', 3, 2, 16,
+         'relu6', None, None, True),
+        ('inverted_bottleneck', 3, 2, 16,
+         'relu', 0.25, 1, True),
+        ('inverted_bottleneck', 3, 2, 24,
+         'relu', None, 72. / 16, False),
+        ('inverted_bottleneck', 3, 1, 24,
+         'relu', None, 88. / 24, True),
+        ('inverted_bottleneck', 5, 2, 40,
+         'relu6', 0.25, 4., False),
+        ('inverted_bottleneck', 5, 1, 40,
+         'relu6', 0.25, 6., False),
+        ('inverted_bottleneck', 5, 1, 40,
+         'relu6', 0.25, 6., False),
+        ('inverted_bottleneck', 5, 1, 48,
+         'relu6', 0.25, 3., False),
+        ('inverted_bottleneck', 5, 1, 48,
+         'relu6', 0.25, 3., True),
+        ('inverted_bottleneck', 5, 1, 96,
+         'relu6', 0.25, 6., False),
+        ('inverted_bottleneck', 5, 1, 96,
+         'relu6', 0.25, 6., False),
+        ('inverted_bottleneck', 5, 1, 96,
+         'relu6', 0.25, 6., False),
+        ('conv_bn', 1, 1, 576,
+         'relu6', None, None, True),
+    ]
+}
 
 
 MNV3Small_BLOCK_SPECS = {
@@ -113,6 +148,7 @@ MNV3Large_BLOCK_SPECS = {
 SUPPORTED_SPECS_MAP = {
     'MobileNetV3Large': MNV3Large_BLOCK_SPECS,
     'MobileNetV3Small': MNV3Small_BLOCK_SPECS,
+    'MobileNetV3SmallEdgeTPU': MNV3Small_EDGETPU,
 }
 
 
@@ -433,6 +469,39 @@ def MobileNetV3Large(
     The MobileNetV3Large model as an instance of tf.keras.Model.
   """
   model = MobileNet(model_id='MobileNetV3Large',
+                    width_multiplier=width_multiplier,
+                    output_stride=output_stride,
+                    bn_layer=bn_layer,
+                    conv_kernel_weight_decay=conv_kernel_weight_decay,
+                    reduce_last_block_filters=reduce_last_block_filters,
+                    name=name)
+  return model
+
+
+def MobileNetV3SmallEdgeTPU(
+    width_multiplier: float = 1.0,
+    output_stride: int = 32,
+    bn_layer: Callable[..., Any] = tf.keras.layers.BatchNormalization,
+    conv_kernel_weight_decay: float = 0.0,
+    reduce_last_block_filters: bool = False,
+    name: str = 'MobileNetV3SmallEdgeTPU') -> tf.keras.Model:
+  """Creates a MobileNetV3SmallEdgeTPU model.
+
+  Args:
+    width_multiplier: A float, depth_multiplier for the whole model.
+    output_stride: An optional integer specifying the output stride of the
+      network.
+    bn_layer: An optional tf.keras.layers.Layer that computes the
+        normalization (default: tf.keras.layers.BatchNormalization).
+    conv_kernel_weight_decay: A float, the weight decay for convolution kernels.
+    reduce_last_block_filters: A bool indicates whether to reduce the final
+      block's filters by a factor of 2.
+    name: Model name.
+
+  Returns:
+    The MobileNetV3Small model as an instance of tf.keras.Model.
+  """
+  model = MobileNet(model_id='MobileNetV3SmallEdgeTPU',
                     width_multiplier=width_multiplier,
                     output_stride=output_stride,
                     bn_layer=bn_layer,
