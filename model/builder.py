@@ -1,5 +1,5 @@
 # coding=utf-8
-# Copyright 2022 The Deeplab2 Authors.
+# Copyright 2021 The Deeplab2 Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -81,6 +81,8 @@ def create_mobilenet_encoder(
     backbone = mobilenet.MobileNetV3Large
   elif backbone_options.name.lower() == 'mobilenet_v3_small':
     backbone = mobilenet.MobileNetV3Small
+  elif backbone_options.name.lower() == 'mobilenet_v3_small_edgetpu':
+    backbone = mobilenet.MobileNetV3SmallEdgeTPU
   else:
     raise ValueError('The specified encoder %s is not a valid encoder.' %
                      backbone_options.name)
