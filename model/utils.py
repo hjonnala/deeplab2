@@ -221,13 +221,13 @@ def resize_align_corners(input_tensor, target_size, method='bilinear'):
       input_tensor,
       target_size,
       method=tf_method,
-      align_corners=True,
+      align_corners=False,
       name='resize_align_corners')
 
 
 def resize_bilinear(images,
                     size,
-                    align_corners=True,
+                    align_corners=False,
                     name=None):
   """TPU memory efficient version of tf.compat.v1.image.resize_bilinear.
 
